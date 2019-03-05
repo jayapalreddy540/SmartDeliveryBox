@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "460970522828",
+    "firebase_url": "https://smartdeliverybox-5dc37.firebaseio.com",
+    "project_id": "smartdeliverybox-5dc37",
+    "storage_bucket": "smartdeliverybox-5dc37.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460970522828:android:774471eccae3a0bc",
+        "android_client_info": {
+          "package_name": "tk.codme.smartDeliveryBox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "460970522828-3gkbbrl8nnc2jc30sv1gi5epmjvbds5g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tk.codme.smartDeliveryBox",
+            "certificate_hash": "a5b196e5834ade5c7105ca28a17bcd42cab22f20"
+          }
+        },
+        {
+          "client_id": "460970522828-mpfv9l7vpie9mkib601u2of4n25qo9bg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2MpGBf7u1B5MWGB597L2xXOYduxeluRo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "460970522828-mpfv9l7vpie9mkib601u2of4n25qo9bg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
