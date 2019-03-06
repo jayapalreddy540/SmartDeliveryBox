@@ -80,8 +80,14 @@ public class MainActivity extends AppCompatActivity {
                 mRef.child("number").setValue(OTP).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        sendSMSMessage(OTP);
-                        Toast.makeText(MainActivity.this,"OTP setting successful",Toast.LENGTH_SHORT).show();
+                        phoneNo=txtphoneNo.getText().toString();
+                        if(!phoneNo.equals("")) {
+                            sendSMSMessage(OTP);
+                            Toast.makeText(MainActivity.this, "OTP sent to "+phoneNo , Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(MainActivity.this, "OTP setting successful", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
 
@@ -107,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else{
-            phoneNo=txtphoneNo.getText().toString();
+
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNo, null, message, null, null);
             Toast.makeText(getApplicationContext(), "OTP sent to  : "+ phoneNo,
