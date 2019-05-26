@@ -7,10 +7,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.Editable;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,10 +24,13 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
@@ -42,6 +50,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText textOTP;
     private DatabaseReference mRef;
 
+    private FirebaseAuth mAuth;
+    private DatabaseReference mUserRef;
+    private FirebaseUser currentUser;
+    private ProgressDialog mSignoutProgress;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +66,27 @@ public class MainActivity extends AppCompatActivity {
         textOTP = (EditText) findViewById(R.id.textOTP);
 
         txtphoneNo = (EditText) findViewById(R.id.editText);
-
+        mAuth = FirebaseAuth.getInstance();
         mRef= FirebaseDatabase.getInstance().getReference();
+        if(mAuth.getCurrentUser()!=null) {
+            mUserRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+            mUserRef.keepSynced(true);
+        }
+        else
+        {
+            Intent startIntent=new Intent(MainActivity.this,LoginActivity.class);
+            startActivity(startIntent);
+            finish();
+        }
 
-        mRef.addValueEventListener(new ValueEventListener() {
+        mSignoutProgress=new ProgressDialog(this);
+        Log.d("uid   :  ",mUserRef.toString());
+
+        mUserRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {
-                    String txtOtp = dataSnapshot.child("number").getValue().toString();
+                    String txtOtp = dataSnapshot.child("otp").getValue().toString();
                     showOTP.setText("Present OTP : "+txtOtp);
                 }
                 catch(Exception e){
@@ -72,12 +99,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
         sendOTP.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final int OTP=Integer.parseInt(textOTP.getText().toString());
 
-                mRef.child("number").setValue(OTP).addOnSuccessListener(new OnSuccessListener<Void>() {
+                mUserRef.child("otp").setValue(OTP).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         phoneNo=txtphoneNo.getText().toString();
@@ -95,7 +124,75 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
+
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+
+        if(mAuth.getCurrentUser()==null){
+            sendToStart();
+        }
+        else {
+            mUserRef.child("online").setValue("online");
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        currentUser=mAuth.getCurrentUser();
+        if(currentUser!=null){
+            mUserRef.child("online").setValue(ServerValue.TIMESTAMP);
+        }
+
+    }
+
+    private void sendToStart() {
+        mSignoutProgress.dismiss();
+        Intent startIntent=new Intent(MainActivity.this,LoginActivity.class);
+        startActivity(startIntent);
+        finish();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if(item.getItemId()==R.id.main_logout_btn){
+
+            mUserRef.child("online").setValue(ServerValue.TIMESTAMP);
+
+            mSignoutProgress.setTitle("Logout");
+            mSignoutProgress.setMessage("Logging out...");
+            mSignoutProgress.setCanceledOnTouchOutside(false);
+            mSignoutProgress.show();
+            FirebaseAuth.getInstance().signOut();
+            sendToStart();
+        }
+
+        if(item.getItemId()==R.id.main_settings_btn) {
+            Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(settingsIntent);
+        }
+        if(item.getItemId()==R.id.main_about_btn){
+            Intent usersIntent=new Intent(MainActivity.this,AboutActivity.class);
+            startActivity(usersIntent);
+        }
+        return true;
+    }
+
 
     protected void sendSMSMessage(int OTP) {
         message = "Smart Delivery Box \n\n Your OTP : "+OTP;
