@@ -68,15 +68,15 @@ public class MainActivity extends AppCompatActivity {
         txtphoneNo = (EditText) findViewById(R.id.editText);
         mAuth = FirebaseAuth.getInstance();
         mRef= FirebaseDatabase.getInstance().getReference();
-        if(mAuth.getCurrentUser()!=null) {
-            mUserRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
-            mUserRef.keepSynced(true);
-        }
-        else
-        {
+        if(mAuth.getCurrentUser()==null) {
             Intent startIntent=new Intent(MainActivity.this,LoginActivity.class);
             startActivity(startIntent);
             finish();
+        }
+        else
+        {
+            mUserRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+            mUserRef.keepSynced(true);
         }
 
         mSignoutProgress=new ProgressDialog(this);
